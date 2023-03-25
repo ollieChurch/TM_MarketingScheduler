@@ -1,0 +1,10 @@
+# ignore .NET build output
+bin/
+obj/
+
+# ignore user-specific files
+*.user
+
+# ignore environment-specific files
+*.env
+*.env.*
