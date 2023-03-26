@@ -12,20 +12,19 @@ This is a simple .NET 6.0 web application for scheduling marketing emails for cu
     DB_CONN_STR=<connection string>
     ```
     
-4. Save the **`.env`** file.
-5. Open a terminal/command prompt and navigate to the project folder. Run the following command to restore the project dependencies:
+4. Open a terminal/command prompt and navigate to the project folder. Run the following command to restore the project dependencies:
     
     ```
     dotnet restore
     ```
     
-6. Run the following command to build the project:
+5. Run the following command to build the project:
     
     ```
     dotnet build
     ```
     
-7. Finally, run the following command to start the project:
+6. Finally, run the following command to start the project:
     
     ```
     dotnet run
