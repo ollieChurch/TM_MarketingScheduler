@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using MarketingScheduler.Common;
 using MarketingScheduler.Models;
 using MarketingScheduler.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +39,32 @@ namespace MarketingScheduler.Controllers
         [HttpPost("addCustomers")]
         public async Task<ActionResult<List<ReportEntry>>> AddCustomers([FromBody] List<Customer> newCustomers)
         {
+            if (newCustomers == null || !newCustomers.Any())
+            {
+                return BadRequest("At least one customer must be provided.");
+            }
+
+            foreach (Customer customer in newCustomers)
+            {
+                if (customer.Frequency == Frequency.Weekly || customer.Frequency == Frequency.Monthly)
+                {
+                    if (customer.FrequencyDetails == null)
+                    {
+                        return BadRequest("Frequency details are required for weekly or monthly frequency");
+                    }
+
+                    if (customer.Frequency == Frequency.Weekly && customer.FrequencyDetails.Exists(x => x < 0 || x > 6))
+                    {
+                        return BadRequest("For weekly frequency, frequencyDetails must contain integers from 0 (Sunday) to 6 (Saturday)");
+                    }
+
+                    if (customer.Frequency == Frequency.Monthly && customer.FrequencyDetails.Exists(x => x < 1 || x > 28))
+                    {
+                        return BadRequest("For monthly frequency, frequencyDetails must contain integers from 1 (1st) to 28 (28th)");
+                    }
+                }
+            }
+
             try
             {
                 var customers = await _customerService.AddCustomersAsync(newCustomers);
@@ -51,8 +79,8 @@ namespace MarketingScheduler.Controllers
         }
 
         [HttpGet("report")]
-        public async Task<ActionResult<List<ReportEntry>>> GetReport([FromQuery] int numberOfDays)
-        {
+        public async Task<ActionResult<List<ReportEntry>>> GetReport([FromQuery][Range(1, int.MaxValue)] int numberOfDays)
+        {   
             try
             {
                 var customers = await _customerService.GetAllCustomersAsync();
