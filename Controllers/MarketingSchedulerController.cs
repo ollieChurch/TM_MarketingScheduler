@@ -8,7 +8,7 @@ namespace MarketingScheduler.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class  MarketingSchedulerController : ControllerBase
+    public class MarketingSchedulerController : ControllerBase
     {
         private readonly ILogger<MarketingSchedulerController> _logger;
         private readonly CustomerService _customerService;
@@ -44,24 +44,12 @@ namespace MarketingScheduler.Controllers
                 return BadRequest("At least one customer must be provided.");
             }
 
-            foreach (Customer customer in newCustomers)
+            foreach (Customer customer in newCustomers.Where(x => x.Frequency == Frequency.Weekly || x.Frequency == Frequency.Monthly))
             {
-                if (customer.Frequency == Frequency.Weekly || customer.Frequency == Frequency.Monthly)
+                var userInputValidation = _customerService.ValidateFrequencyInput(customer.Frequency, customer.FrequencyDetails);
+                if (userInputValidation != "validated")
                 {
-                    if (customer.FrequencyDetails == null)
-                    {
-                        return BadRequest("Frequency details are required for weekly or monthly frequency");
-                    }
-
-                    if (customer.Frequency == Frequency.Weekly && customer.FrequencyDetails.Exists(x => x < 0 || x > 6))
-                    {
-                        return BadRequest("For weekly frequency, frequencyDetails must contain integers from 0 (Sunday) to 6 (Saturday)");
-                    }
-
-                    if (customer.Frequency == Frequency.Monthly && customer.FrequencyDetails.Exists(x => x < 1 || x > 28))
-                    {
-                        return BadRequest("For monthly frequency, frequencyDetails must contain integers from 1 (1st) to 28 (28th)");
-                    }
+                    return BadRequest(userInputValidation);
                 }
             }
 
@@ -78,9 +66,9 @@ namespace MarketingScheduler.Controllers
             }
         }
 
-        [HttpGet("report")]
-        public async Task<ActionResult<List<ReportEntry>>> GetReport([FromQuery][Range(1, int.MaxValue)] int numberOfDays)
-        {   
+        [HttpGet("{numberOfDays}/report")]
+        public async Task<ActionResult<List<ReportEntry>>> GetReport([FromRoute][Range(1, int.MaxValue)] int numberOfDays)
+        {
             try
             {
                 var customers = await _customerService.GetAllCustomersAsync();
@@ -91,6 +79,58 @@ namespace MarketingScheduler.Controllers
             {
                 _logger.LogError(ex, "Error occured while generating report");
                 return StatusCode(500, "An error occured while generating report");
+            }
+        }
+
+        [HttpPatch("{customerId}/updatePreference")]
+        public async Task<ActionResult<Customer>> UpdateCustomerPreference([FromRoute] Guid customerId, [FromQuery][Required] Frequency frequency, [FromBody] List<int>? frequencyDetails)
+        {
+            var userInputValidation = _customerService.ValidateFrequencyInput(frequency, frequencyDetails);
+            if (userInputValidation != "validated")
+            {
+                return BadRequest(userInputValidation);
+            }
+
+            try
+            {
+                var updatedCustomer = await _customerService.UpdateCustomerPreferenceAsync(customerId, frequency, frequencyDetails);
+                return Ok(updatedCustomer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error occured while updating preferences for customer {customerId}");
+                return StatusCode(500, $"An error occured while updating preferences for customer {customerId}");
+            }
+        }
+
+        [HttpDelete("{customerId}/delete")]
+        public async Task<ActionResult<string>> DeleteCustomer([FromRoute] Guid customerId)
+        {
+            try
+            {
+                var deletedResponse = await _customerService.DeleteCustomerAsync(customerId);
+                return Ok(deletedResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while deleting customer {customerId}");
+                return StatusCode(500, $"An error occured while deleting customer {customerId}");
+            }
+        }
+
+        // This end point was added for quality of life during testing. It would be removed before production.
+        [HttpDelete("deleteAll")]
+        public async Task<ActionResult<string>> DeleteAllCustomers()
+        {
+            try
+            {
+                var deletedResponse = await _customerService.EmptyDatabaseAsync();
+                return Ok(deletedResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while deleting all customers from the database");
+                return StatusCode(500, "An error occured while deleting all customers");
             }
         }
     }
