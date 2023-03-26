@@ -21,7 +21,7 @@ namespace MarketingScheduler.Controllers
             _calendarService = calendarService;
         }
 
-        [HttpGet("allCustomers")]
+        [HttpGet("customers")]
         public async Task<ActionResult<List<Customer>>> GetAllCustomers()
         {
             try
