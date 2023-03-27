@@ -3,6 +3,10 @@ using MarketingScheduler.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using DotNetEnv;
+
+DotNetEnv.Env.Load();
+string? connectionString = Environment.GetEnvironmentVariable("DB_CONN_STR");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +21,7 @@ builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("D
 builder.Services.AddSingleton<IMongoClient>(s =>
 {
     var settings = s.GetRequiredService<IOptions<DatabaseSettings>>().Value;
-    return new MongoClient(configuration["DB_CONN_STR"]);
+    return new MongoClient(connectionString);
 });
 builder.Services.AddControllers();
 builder.Services.AddSingleton<CustomerService>();
