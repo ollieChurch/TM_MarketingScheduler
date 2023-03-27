@@ -3,7 +3,7 @@ using MarketingScheduler.Models;
 
 namespace MarketingScheduler.Services
 {
-    public class CalendarService 
+    public class CalendarService
     {
         public List<DateTime> GetDates(int numberOfDays)
         {

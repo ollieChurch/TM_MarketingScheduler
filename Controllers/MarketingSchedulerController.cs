@@ -55,7 +55,8 @@ namespace MarketingScheduler.Controllers
 
             try
             {
-                var customers = await _customerService.AddCustomersAsync(newCustomers);
+                var iscustomerUpdated = await _customerService.AddCustomersAsync(newCustomers);
+                var customers = await _customerService.GetAllCustomersAsync();
                 var report = _calendarService.GenerateReport(90, customers);
                 return Ok(report);
             }
