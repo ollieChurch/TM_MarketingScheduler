@@ -1,6 +1,6 @@
 # Marketing Scheduler
 
-This is a simple .NET 6.0 web application for scheduling marketing emails for customers. Customers can be added to the database and scheduled to receive emails at different frequencies.
+This is a simple .NET 6.0 web application for scheduling marketing for customers. Customers can be added to the database and scheduled to receive marketing at different frequencies based on their preferences.
 
 ## Set Up
 
@@ -40,7 +40,7 @@ Open the Swagger UI by navigating to the URL where the project is running, follo
 Endpoints:
 
 1. GET **`/MarketingScheduler/customers`**: Retrieves a list of all customers.
-    - Expected response: A list of Customer objects.
+    Expected response: A list of Customer objects.
     
 2. POST **`/MarketingScheduler/addCustomers`**: Adds a list of new customer to the database.
     
@@ -88,11 +88,11 @@ Endpoints:
     - Jemima is expecting to receive marketing every Sunday and Saturday
     - Julie is expecting to receive marketing on the 10th and 24th of each month
     
-    - Expected response: report for the next 90 days detailing who is receiving marketing on each day.
+    Expected response: report for the next 90 days detailing who is receiving marketing on each day.
     
 3. GET `/MarketingScheduler/{numberOfDays}/report`: Returns a report for the specified number of days detailing who will be receiving marketing on each day
     
-    - Expected response: report for the specified number of days detailing who is receiving marketing on each day.
+    Expected response: report for the specified number of days detailing who is receiving marketing on each day.
     
 4. PATCH `/MarketingScheduler/{customerId}/updatePreference`: Updates an existing customer’s marketing preference in the database.
     
@@ -110,3 +110,5 @@ Given this is a product which would handle customer's data, authentication of th
 
 I would have liked to include a search endpoint which could provide back a list of customers for specified search parameters, such as daily frequency, weekly frequency on a Sunday or by name.
 It would also be relatively easy to expand the customer model to include contact details for the customer (e.g. email) and then maybe some basic validations, such as to prevent the same email being used twice.
+
+Finally, while I had time to add some basic unit tests for the two services, it would be wise to increase the test coverage. 

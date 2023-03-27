@@ -7,7 +7,7 @@ namespace MarketingScheduler.Services
 {
     public class CustomerService
     {
-        private readonly IMongoCollection<Customer> _customers;
+        internal IMongoCollection<Customer> _customers;
 
         public CustomerService(IOptions<DatabaseSettings> databaseSettings, IMongoClient mongoClient)
         {
@@ -17,11 +17,11 @@ namespace MarketingScheduler.Services
 
         public async Task<List<Customer>> GetAllCustomersAsync()
         {
-            var customers = await _customers.Find(x => true).ToListAsync();
-            return customers;
+            var customers = await _customers.FindAsync(x => true);
+            return customers.ToList();
         }
 
-        public async Task<List<Customer>> AddCustomersAsync(List<Customer> newCustomers)
+        public async Task<Boolean> AddCustomersAsync(List<Customer> newCustomers)
         {
             foreach (Customer customer in newCustomers)
             {
@@ -29,9 +29,7 @@ namespace MarketingScheduler.Services
             }
 
             await _customers.InsertManyAsync(newCustomers);
-            var updatedCustomers = await GetAllCustomersAsync();
-
-            return updatedCustomers;
+            return true;
         }
 
         public async Task<Customer> UpdateCustomerPreferenceAsync(Guid id, Frequency frequency, List<int>? frequencyDetails)
