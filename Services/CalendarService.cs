@@ -24,21 +24,10 @@ namespace MarketingScheduler.Services
 
             foreach (var date in dates)
             {
-                var customersToInclude = customers
-                    .Where(x => x.Frequency switch
-                    {
-                        Frequency.Daily => true,
-                        Frequency.Weekly => x.FrequencyDetails != null && x.FrequencyDetails.Contains((int)date.DayOfWeek),
-                        Frequency.Monthly => x.FrequencyDetails != null && x.FrequencyDetails.Contains(date.Day),
-                        _ => false
-                    })
-                    .Select(x => x.Name)
-                    .ToList();
-
                 report.Add(new ReportEntry(
                     date.DayOfWeek.ToString(),
                     date.ToShortDateString(),
-                    customersToInclude
+                    customers.Where(x => x.ShouldSendMarketing(date)).Select(x => x.Name).ToList()
                 ));
             }
 

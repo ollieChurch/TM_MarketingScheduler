@@ -23,7 +23,22 @@ namespace MarketingScheduler.Models
         [BsonElement("_frequencyDetails")]
         public List<int>? FrequencyDetails { get; set; }
 
-    public Customer(Guid id, string name, Frequency frequency, List<int>?frequencyDetails)
+        public bool ShouldSendMarketing(DateTime date)
+        {
+            switch (Frequency)
+            {
+                case Frequency.Daily:
+                    return true;
+                case Frequency.Weekly:
+					return FrequencyDetails != null && FrequencyDetails.Contains((int)date.DayOfWeek);
+                case Frequency.Monthly:
+					return FrequencyDetails != null && FrequencyDetails.Contains(date.Day);
+                default:
+					return false;
+            }
+        }
+
+        public Customer(Guid id, string name, Frequency frequency, List<int>? frequencyDetails)
         {
             this.Id = id;
             this.Name = name;
